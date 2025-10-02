@@ -1,0 +1,299 @@
+{
+  "name": "Ryad_Dental",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -352,
+        -16
+      ],
+      "id": "ff3e168c-0a14-4b3c-bfce-03bb2cf70de4",
+      "name": "Telegram Trigger",
+      "webhookId": "1febbb06-598b-4105-b628-1571e43476b9",
+      "credentials": {
+        "telegramApi": {
+          "id": "E7lF2TUa2TQWnqwV",
+          "name": "Telegram account 4"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.message.text }}",
+        "options": {
+          "systemMessage": "You are a professional dentist assistant for our clinic. \nYour main role is to handle patient appointment scheduling. \nYou must always be polite, professional, and clear.\n\nWorking hours:  \n- Available days: Sunday to Thursday  \n- Available times: 09:00 AM – 05:00 PM  \n- No appointments on Friday or Saturday  \n- Each appointment = 1 hour  \n\nYour responsibilities:  \n1. When you greet the patient, always start by showing the clinic’s working hours (Sunday–Thursday, 9 AM–5 PM, closed Friday and Saturday).  \n   Example: “Hello 👋, welcome to our dental clinic. We are open Sunday to Thursday from 9 AM to 5 PM (closed on Friday and Saturday). I can help you book your appointment.”  \n\n2. Collect the following details:  \n   - Full Name  \n   - Email  \n   - Phone Number  \n   - Preferred Date & Time  \n\n3. Appointment rules:  \n   - Only allow booking between 09:00 AM – 05:00 PM.  \n   - Do not book on Friday or Saturday.  \n   - Use the \"Google Calendar\" tool to check if the requested slot is free.  \n   - If it is free → confirm with the patient and use the \"Google Calendar\" tool to create the event.  \n   - If the slot is already booked or outside working hours → suggest the nearest available time within working hours.  \n\n4. After confirming the appointment, use the \"Google Sheets\" tool to save the booking with these columns:  \n   - Name  \n   - Email  \n   - Phone Number  \n   - Appointment Start Time  \n   - Appointment End Time (Start + 1 hour)  \n\n5. Finally, confirm back to the patient with a clear message that their appointment is booked successfully.  \n\nRules:  \n- Always check availability in Google Calendar before confirming.  \n- Never create events outside working hours (9 AM – 5 PM) or on Friday/Saturday.  \n- Do not create overlapping events.  \n- Always be polite and professional, e.g., “Thank you, I’ve booked you for Monday at 2–3 PM. See you soon 🦷✨.”  \n- If information is missing, ask the patient again until all required details are collected. \nbe careful for the date \nknowing that today is 1/October/2025 Wednesday \ndon't forget to add the appointment to the sheet"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        -32,
+        -16
+      ],
+      "id": "c7ecdd35-3bdd-433f-bd85-7903222987db",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4.1-nano",
+          "mode": "list",
+          "cachedResultName": "gpt-4.1-nano"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        -208,
+        176
+      ],
+      "id": "8808c08f-9a38-4e5b-8a50-d29c59b77251",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "On6b6rom4buDSICu",
+          "name": "OpenAi account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $json.message.chat.id }}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        -48,
+        176
+      ],
+      "id": "d365cb16-d9a0-4345-a982-4a8f4cf5cb9c",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "text": "={{ $json.output }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        400,
+        -16
+      ],
+      "id": "c5d8f6c6-dd0b-4020-8d9e-211e56de7347",
+      "name": "Send a text message",
+      "webhookId": "5427d93f-7480-404b-a3fc-79561dc055b9",
+      "credentials": {
+        "telegramApi": {
+          "id": "E7lF2TUa2TQWnqwV",
+          "name": "Telegram account 4"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1zYDuIK_cafBglM_uXQijhTrC2qHrCvxg_6HoyAM8YKg",
+          "mode": "list",
+          "cachedResultName": "dr_Ryad_dento",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1zYDuIK_cafBglM_uXQijhTrC2qHrCvxg_6HoyAM8YKg/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1zYDuIK_cafBglM_uXQijhTrC2qHrCvxg_6HoyAM8YKg/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "name ": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('name_', ``, 'string') }}",
+            "email": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('email', ``, 'string') }}",
+            "phone number": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('phone_number', ``, 'string') }}",
+            "appointment": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('appointment', ``, 'string') }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "name ",
+              "displayName": "name ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "email",
+              "displayName": "email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "phone number",
+              "displayName": "phone number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "appointment",
+              "displayName": "appointment",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.7,
+      "position": [
+        288,
+        176
+      ],
+      "id": "c5d07a80-9205-4b43-96f6-e3c42745b661",
+      "name": "Append row in sheet in Google Sheets",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "dyAiba5BnFPm7opr",
+          "name": "Google Sheets account 9"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "calendar": {
+          "__rl": true,
+          "value": "72038ccb457b8716916295c315f0641866d5f04ba6c9b2f49c82654e1b27071d@group.calendar.google.com",
+          "mode": "list",
+          "cachedResultName": "Dr_Ryad_dento"
+        },
+        "start": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Start', ``, 'string') }}",
+        "end": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('End', ``, 'string') }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.3,
+      "position": [
+        112,
+        176
+      ],
+      "id": "d833b7c0-100e-4fa5-8993-748796b5f976",
+      "name": "Create an event in Google Calendar",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "OBvwOgPUTW2t9co5",
+          "name": "Google Calendar account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in sheet in Google Sheets": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create an event in Google Calendar": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "b3a93caa-1c74-49cb-ae1f-9bcae3db960e",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "9004597aecaa4abc3bccc7e180c5d51735447d7d028e32e70c4009a4ae1b4563"
+  },
+  "id": "60cFYFcR6Ngh9bpF",
+  "tags": []
+}
